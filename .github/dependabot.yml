@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    reviewers:
+      - "meriy100"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci(github-actions):"
+
