@@ -1,0 +1,20 @@
+name: Check PR title
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  main:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pinnacles/github-action-module-release/.github/actions/validate-pr-title@v3.0.2
+        env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
