@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: pinnacles/github-action-module-release/.github/actions/release-by-merge@v4.2.5
+      - uses: pinnacles/github-action-module-release/.github/actions/release-by-merge@v4.4.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
