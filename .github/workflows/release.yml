@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - uses: pinnacles/github-action-module-release/.github/actions/release-by-merge@v4.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
