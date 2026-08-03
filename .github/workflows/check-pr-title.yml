@@ -16,7 +16,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pinnacles/github-action-module-release/.github/actions/validate-pr-title@v4.5.1
         env:
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
