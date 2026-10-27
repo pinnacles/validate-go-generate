@@ -1,0 +1,36 @@
+# 一時的な確認用（マージしない）。public のリポジトリのジョブからは、
+# Artifact アカウントの CodeArtifact の読み取りロールを引き受けられないことを確かめる
+name: "check-codeartifact-public-denied"
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/check-codeartifact-public-denied.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Assume roles (expected to be denied)
+        run: |
+          set -uo pipefail
+          fail=0
+          jwt=$(curl -sf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          echo "::add-mask::$jwt"
+          echo "$jwt" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | jq -c '{repository_id, repository_owner_id, repository_visibility}' || true
+          for role in codeartifact-reader dependabot-reader; do
+            if aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::314240411904:role/${role}" \
+                 --role-session-name "public-check-${GITHUB_RUN_ID}" --web-identity-token "$jwt" >/dev/null 2>err.txt; then
+              echo "FAIL ${role}: assumed"; fail=1
+            elif grep -q AccessDenied err.txt; then
+              echo "OK   ${role}: AccessDenied"
+            else
+              echo "FAIL ${role}: unexpected error"; cat err.txt; fail=1
+            fi
+          done
+          exit $fail
