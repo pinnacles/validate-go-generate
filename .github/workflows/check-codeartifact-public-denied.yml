@@ -21,11 +21,12 @@ jobs:
           set -uo pipefail
           fail=0
           jwt=$(curl -sf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value)
+          if [ -z "$jwt" ] || [ "$jwt" = null ]; then echo "FAIL: could not get OIDC token"; exit 1; fi
           echo "::add-mask::$jwt"
-          echo "$jwt" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | jq -c '{repository_id, repository_owner_id, repository_visibility}' || true
+          jq -cR 'split(".")[1] | @base64d | fromjson | {repository_id, repository_owner_id, repository_visibility}' <<< "$jwt"
           for role in codeartifact-reader dependabot-reader; do
             if aws sts assume-role-with-web-identity --role-arn "arn:aws:iam::314240411904:role/${role}" \
-                 --role-session-name "public-check-${GITHUB_RUN_ID}" --web-identity-token "$jwt" >/dev/null 2>err.txt; then
+                 --role-session-name "public-check-${GITHUB_RUN_ID}" --duration-seconds 900 --web-identity-token "$jwt" >/dev/null 2>err.txt; then
               echo "FAIL ${role}: assumed"; fail=1
             elif grep -q AccessDenied err.txt; then
               echo "OK   ${role}: AccessDenied"
