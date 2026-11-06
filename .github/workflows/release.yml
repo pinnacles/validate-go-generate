@@ -7,10 +7,9 @@ on:
 
 jobs:
   release:
-    runs-on:
-      - codebuild-github-actions-runner-${{ github.run_id }}-${{ github.run_attempt }}
-      - image:ubuntu-7.0
-      - instance-size:medium
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7

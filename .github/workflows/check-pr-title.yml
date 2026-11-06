@@ -9,10 +9,7 @@ on:
 jobs:
   main:
     name: Validate PR title
-    runs-on:
-      - codebuild-github-actions-runner-${{ github.run_id }}-${{ github.run_attempt }}
-      - image:ubuntu-7.0
-      - instance-size:medium
+    runs-on: ubuntu-slim
     permissions:
       pull-requests: write
     steps:
